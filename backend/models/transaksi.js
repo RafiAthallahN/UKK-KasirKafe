@@ -11,12 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongTo(models.user,{
+      this.belongsTo(models.user,{
         foreignKey: "id_user",
         as: "user"
       })
 
-      this.belongTo(models.meja,{
+      this.belongsTo(models.meja,{
         foreignKey: "id_meja",
         as: "meja"
       })

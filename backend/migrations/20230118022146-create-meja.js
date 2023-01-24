@@ -1,4 +1,7 @@
 'use strict';
+
+const { sequelize } = require('../models');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -11,6 +14,9 @@ module.exports = {
       },
       nomor_meja: {
         type: Sequelize.STRING
+      },
+      status:{
+        type: Sequelize.ENUM('Available','Unavailable')
       },
       createdAt: {
         allowNull: false,
