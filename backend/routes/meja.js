@@ -40,7 +40,7 @@ app.post("/", async (req, res) => {
         nomor_meja: req.body.nomor_meja,
         status: req.body.status
     }
-    petugas.create(data)
+    meja.create(data)
         .then(result => {
             res.json({
                 message: "Data Added",

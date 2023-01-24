@@ -43,7 +43,7 @@ app.post("/", async (req, res) => {
         username: req.body.username,
         password: md5(req.body.password)
     }
-    petugas.create(data)
+    user.create(data)
         .then(result => {
             res.json({
                 message: "Data Added",
