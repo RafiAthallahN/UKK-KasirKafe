@@ -1,6 +1,8 @@
 const express = require("express")
 const user = require("../models/index").user
 const md5 = require("md5")
+const sequelize = require("sequelize")
+const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -96,6 +98,36 @@ app.delete("/:id", async (req, res) => {
                 message: error.message
             })
         })
+})
+
+app.post("/search", async (req,res)=>{
+    let keyword = req.body.keyword
+    let result = await user.findAll({
+        
+            where: {
+                [Op.or]: [
+                    {
+                        id_user: {
+                            [Op.substring]: `%${keyword}%`
+                        }
+                    },
+                    {
+                        username: {
+                            [Op.substring]: `%${keyword}%`
+                        }
+                    },
+                    {
+                        role: {
+                            [Op.substring]: `%${keyword}%`
+                        }
+                    }
+                ]
+            }  
+    })
+    res.json({
+        user: result
+    })
+
 })
 
 module.exports = app

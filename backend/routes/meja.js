@@ -1,5 +1,7 @@
 const express = require("express")
 const meja = require("../models/index").meja
+const sequelize = require("sequelize")
+const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -92,5 +94,29 @@ app.delete("/:id", async (req, res) => {
             })
         })
 })
+
+app.post("/search", async (req,res)=>{
+    let keyword = req.body.keyword
+    let result = await meja.findAll({
+        where: {
+            [Op.or]: [
+                {
+                    no_meja: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                },
+                {
+                    available: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                }
+            ]
+        }
+    })
+    res.json({
+        meja: result
+    })
+    })
+
 
 module.exports = app
