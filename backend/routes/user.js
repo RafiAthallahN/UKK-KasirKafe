@@ -100,8 +100,8 @@ app.delete("/:id", async (req, res) => {
         })
 })
 
-app.post("/search", async (req,res)=>{
-    let keyword = req.body.keyword
+app.post("/search/:keyword", async (req,res)=>{
+    let keyword = req.params.keyword
     let result = await user.findAll({
         
             where: {

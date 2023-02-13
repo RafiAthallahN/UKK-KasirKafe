@@ -58,9 +58,8 @@ app.post("/", upload.single("image"), async (req, res) => {
             nama_menu: req.body.nama_menu,
             jenis: req.body.jenis,
             deskripsi: req.body.deskripsi,
-            image: req.file.filename,
-            price: req.body.price,
-            stock: req.body.stock
+            gambar: req.file.filename,
+            harga: req.body.harga
         }
         menu.create(data)
             .then(result => {
@@ -82,8 +81,8 @@ app.put("/:id", upload.single("image"), (req, res) => {
         nama_menu: req.body.nama_menu,
         jenis: req.body.jenis,
         deskripsi: req.body.deskripsi,
-        price: req.body.price,
-        stock: req.body.stock
+        gambar: req.file.filename,
+        harga: req.body.harga
     }
     if (req.file) {
         const row = menu.findOne({ where: param })
