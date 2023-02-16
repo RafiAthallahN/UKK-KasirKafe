@@ -32,6 +32,21 @@ app.get("/", async (req, res) =>{
     })
 })
 
+app.get("/:id", (req, res) => {
+    let param = ({id_transaksi: req.params.id})
+    transaksi.findOne({where:param})
+    .then(result => {
+        res.json({
+            data: result
+        })
+    })
+    
+    .catch(err => {
+        res.json({
+            msg: err.massage
+        })
+    })
+})
 
 app.get ("/id/:id_transaksi", async (req,res) => {
     let param = { id_transaksi: req.params.id_transaksi}
@@ -56,8 +71,8 @@ app.get ("/id/:id_transaksi", async (req,res) => {
         sumTotal: sumTotal
     })
 })
-
-//get transaksi by user id 
+// !----------------------------------------------------------------------------------------------------
+// get transaksi by user id 
 app.get ("/byUser/:id_user", async (req,res) => {
     let param = { id_user: req.params.id_user}
     let result = await transaksi.findAll({
@@ -84,6 +99,7 @@ app.get ("/byUser/:id_user", async (req,res) => {
     })
 })
 
+// !----------------------------------------------------------------------------------------------------
 
 app.post("/", async (req,res) => {
     let current = new Date().toISOString().split('T')[0]
@@ -92,7 +108,8 @@ app.post("/", async (req,res) => {
         id_user: req.body.id_user,//siapa customer yang beli
         id_meja: req.body.id_meja,
         nama_pelanggan: req.body.nama_pelanggan,
-        total: req.body.total
+        status: req.body.status,
+        total: req.body.total,
     }
     transaksi.create(data)
     .then(result => {
@@ -139,86 +156,62 @@ app.post("/update/:id", (req, res) =>{
     })
 })
 
-app.post("/updateTotal/:id", (req, res) =>{
-    let param = { id_transaksi: req.params.id}
-    let data = {
-        total: req.body.total,
-        include: [
-            "detail_transaksi"
-        ]
-    }
-    transaksi.update(data, {where: param})
-    .then(result => {
-        res.json({
-            message: "Data has been Updated"
-        })
-    })
-    .catch( error => {
-        res.json({
-            message: error.message
-        })
-    })
-})
+// app.post("/updateTotal/:id", (req, res) =>{
+//     let param = { id_transaksi: req.params.id}
+//     let data = {
+//         total: req.body.total,
+//         include: [
+//             "detail_transaksi"
+//         ]
+//     }
+//     transaksi.update(data, {where: param})
+//     .then(result => {
+//         res.json({
+//             message: "Data has been Updated"
+//         })
+//     })
+//     .catch( error => {
+//         res.json({
+//             message: error.message
+//         })
+//     })
+// })
 
-app.post("/updateDetail", async (req, res) =>{
-    // let param = { id: req.params.id}
+// app.post("/updateDetail", async (req, res) =>{
+//     // let param = { id: req.params.id}
     
-    let detail = {
-        id_transaksi: req.body.id_transaksi,
-        id_menu: req.body.id_menu,
-        price: req.body.price,
-        qty: req.body.qty,
-        subtotal: req.body.subtotal
-    }
-    detail_transaksi.create(detail)
-    .then(result => {
-        let lastID = detail.id_transaksi
-        console.log(lastID)
-        let data = {
-            total: req.body.subtotal
-        }
-        transaksi.update(data,
-           {where:{id_transaksi: lastID }})
-    // transaksi.update(data, {where: param})
-    .then(result => {
-        res.json({
-            message: "Data has been inserted"
-        })
-    })
-    })
-    .catch(error => {
-        res.json({
-            message: error.message
-        })
-    })
+//     let detail = {
+//         id_transaksi: req.body.id_transaksi,
+//         id_menu: req.body.id_menu,
+//         price: req.body.price,
+//         qty: req.body.qty,
+//         subtotal: req.body.subtotal
+//     }
+//     detail_transaksi.create(detail)
+//     .then(result => {
+//         let lastID = detail.id_transaksi
+//         console.log(lastID)
+//         let data = {
+//             total: req.body.subtotal
+//         }
+//         transaksi.update(data,
+//            {where:{id_transaksi: lastID }})
+//     // transaksi.update(data, {where: param})
+//     .then(result => {
+//         res.json({
+//             message: "Data has been inserted"
+//         })
+//     })
+//     })
+//     .catch(error => {
+//         res.json({
+//             message: error.message
+//         })
+//     })
 
-
-
-    // let data = {
-        
-    //     total: req.body.total  
-    // }
-    // transaksi.update(data, {where: param})
-    // .then(async (result) => {
-    //      // step 1: hapus semua detail berdasarkan id_transaksi
-    //     await detail_transaksi.destroy(
-    //         {
-    //             where: {
-    //                 id_transaksi: request.params.id_transaksi
-    //             }
-    //         }
-    //     )
-    //     let lastID = result.id_transaksi
-    //     console.log(lastID)
-    //     detail = req.body.detail_transaksi
-        
-    // })
-    // .catch(error => {
-    //     console.log(error.message);
-    // })
-})
+// })
   
-app.delete("/del/:id_transaksi", async (req, res) =>{
+app.delete("/delete/:id_transaksi", async (req, res) =>{
     let param = { id_transaksi: req.params.id_transaksi}
     try {
         await detail_transaksi.destroy({where: param})//menghapus detail dulu atau anak 

@@ -1,13 +1,16 @@
 const express = require("express")
 const user = require("../models/index").user
 const md5 = require("md5")
+const jwt = require("jsonwebtoken")
 const sequelize = require("sequelize")
+const SECRET_KEY = "INIKASIR"
+const auth = require("../auth")
 const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-app.get("/", async (req, res) => {
+app.get("/", auth, async (req, res) => {
     user.findAll()
         .then(result => {
             res.json({
@@ -21,7 +24,7 @@ app.get("/", async (req, res) => {
         })
 })
 
-app.get("/:id", async (req, res) => {
+app.get("/:id", auth, async (req, res) => {
     let param = {
         id_user: req.params.id
     }
@@ -38,7 +41,7 @@ app.get("/:id", async (req, res) => {
         })
 })
 
-app.post("/", async (req, res) => {
+app.post("/", auth, async (req, res) => {
     let data = {
         nama_user: req.body.nama_user,
         role: req.body.role,
@@ -59,7 +62,7 @@ app.post("/", async (req, res) => {
         })
 })
 
-app.put("/", async (req, res) => {
+app.put("/", auth, async (req, res) => {
     let param = {
         id_user: req.body.id_user
     }
@@ -83,7 +86,7 @@ app.put("/", async (req, res) => {
         })
 })
 
-app.delete("/:id", async (req, res) => {
+app.delete("/:id", auth, async (req, res) => {
     let param = {
         id_user: req.params.id
     }
@@ -100,34 +103,56 @@ app.delete("/:id", async (req, res) => {
         })
 })
 
-app.post("/search/:keyword", async (req,res)=>{
+app.post("/search/:keyword", auth, async (req, res) => {
     let keyword = req.params.keyword
     let result = await user.findAll({
-        
-            where: {
-                [Op.or]: [
-                    {
-                        id_user: {
-                            [Op.substring]: `%${keyword}%`
-                        }
-                    },
-                    {
-                        username: {
-                            [Op.substring]: `%${keyword}%`
-                        }
-                    },
-                    {
-                        role: {
-                            [Op.substring]: `%${keyword}%`
-                        }
+
+        where: {
+            [Op.or]: [
+                {
+                    id_user: {
+                        [Op.substring]: `%${keyword}%`
                     }
-                ]
-            }  
+                },
+                {
+                    username: {
+                        [Op.substring]: `%${keyword}%`
+                    }
+                },
+                {
+                    role: {
+                        [Op.substring]: `%${keyword}%`
+                    }
+                }
+            ]
+        }
     })
     res.json({
         user: result
     })
 
+})
+
+app.post("/login", async (req, res) => {
+    let param = {
+        username: req.body.username,
+        password: md5(req.body.password),
+    }
+    let result = await user.findOne({ where: param })
+    if (result) {
+        let payload = JSON.stringify(result)
+        let token = jwt.sign(payload, SECRET_KEY)
+        res.json({
+            logged: true,
+            data: result,
+            token: token
+        })
+    } else {
+        res.json({
+            logged: false,
+            message: "Username atau Password salah"
+        })
+    }
 })
 
 module.exports = app
