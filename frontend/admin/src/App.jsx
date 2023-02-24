@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import Navbar from './component/navbar'
+import LoginForm from './pages/login'
+// import Navbar from './component/navbar'
 // import Sidebar from './component/sidebar'
 import './App.css'
 
@@ -8,11 +9,12 @@ function App() {
 
   return (
     <div>
-      <Navbar />
+      <LoginForm/>
+      {/* <Navbar /> */}
       {/* <Sidebar/> */}
-      <h1 className="text-3xl font-bold underline">
+      {/* <h1 className="text-3xl font-bold underline">
       Hello world!
-    </h1>
+    </h1> */}
     </div>
   )
 }
