@@ -41,7 +41,7 @@ app.get("/:id", auth, async (req, res) => {
         })
 })
 
-app.post("/", auth, async (req, res) => {
+app.post("/add", auth, async (req, res) => {
     let data = {
         nama_user: req.body.nama_user,
         role: req.body.role,
@@ -62,7 +62,7 @@ app.post("/", auth, async (req, res) => {
         })
 })
 
-app.put("/", auth, async (req, res) => {
+app.put("/update", auth, async (req, res) => {
     let param = {
         id_user: req.body.id_user
     }
@@ -86,7 +86,7 @@ app.put("/", auth, async (req, res) => {
         })
 })
 
-app.delete("/:id", auth, async (req, res) => {
+app.delete("/delete/:id", auth, async (req, res) => {
     let param = {
         id_user: req.params.id
     }
@@ -103,7 +103,7 @@ app.delete("/:id", auth, async (req, res) => {
         })
 })
 
-app.post("/search/:keyword", auth, async (req, res) => {
+app.get("/search/:keyword", auth, async (req, res) => {
     let keyword = req.params.keyword
     let result = await user.findAll({
 
