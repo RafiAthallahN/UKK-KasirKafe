@@ -37,7 +37,7 @@ app.get("/:id", async (req, res) => {
         })
 })
 
-app.post("/", async (req, res) => {
+app.post("/add", async (req, res) => {
     let data = {
         nomor_meja: req.body.nomor_meja,
         status: req.body.status
@@ -56,7 +56,7 @@ app.post("/", async (req, res) => {
         })
 })
 
-app.put("/", async (req, res) => {
+app.put("/update", async (req, res) => {
     let param = {
         id_meja: req.body.id_meja
     }
@@ -78,7 +78,7 @@ app.put("/", async (req, res) => {
         })
 })
 
-app.delete("/:id", async (req, res) => {
+app.delete("/delete/:id", async (req, res) => {
     let param = {
         id_meja: req.params.id
     }
@@ -95,19 +95,19 @@ app.delete("/:id", async (req, res) => {
         })
 })
 
-app.post("/search", async (req,res)=>{
-    let keyword = req.body.keyword
+app.get("/search/:keyword", async (req,res)=>{
+    let keyword = req.params.keyword
     let result = await meja.findAll({
         where: {
             [Op.or]: [
                 {
-                    no_meja: {
+                    nomor_meja: {
                         [Op.like]: `%${keyword}%`
                     }
                 },
                 {
-                    available: {
-                        [Op.like]: `%${keyword}%`
+                    status: {
+                        [Op.like]: `${keyword}`
                     }
                 }
             ]

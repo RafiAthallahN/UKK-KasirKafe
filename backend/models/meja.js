@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     primaryKey: true,
     autoIncrement: true,
   },
-    nomor_meja: DataTypes.STRING
+    nomor_meja: DataTypes.STRING,
+    status: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'meja',

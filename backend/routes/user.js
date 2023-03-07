@@ -48,18 +48,25 @@ app.post("/add", auth, async (req, res) => {
         username: req.body.username,
         password: md5(req.body.password)
     }
-    user.create(data)
-        .then(result => {
-            res.json({
-                message: "Data Added",
-                data: result
-            })
+
+    if (data.role !== "manajer" && data.role !== "kasir" && data.role !== "admin") {
+        res.json({
+            message: "Invalid role input. Please input 'manajer', 'kasir', or 'admin'."
         })
-        .catch(error => {
-            res.json({
-                message: error.message
+    } else {
+        user.create(data)
+            .then(result => {
+                res.json({
+                    message: "Data Added",
+                    data: result
+                })
             })
-        })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    }
 })
 
 app.put("/update", auth, async (req, res) => {
@@ -72,18 +79,25 @@ app.put("/update", auth, async (req, res) => {
         username: req.body.username,
         password: md5(req.body.password)
     }
-    user.update(data, { where: param })
-        .then(result => {
-            res.json({
-                message: "Data Updated",
-                data: result
-            })
+
+    if (data.role !== "manajer" && data.role !== "kasir" && data.role !== "admin") {
+        res.json({
+            message: "Invalid role input. Please input 'manajer', 'kasir', or 'admin'."
         })
-        .catch(error => {
-            res.json({
-                message: error.message
+    } else {
+        user.update(data, { where: param })
+            .then(result => {
+                res.json({
+                    message: "Data Updated",
+                    data: result
+                })
             })
-        })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    }
 })
 
 app.delete("/delete/:id", auth, async (req, res) => {
