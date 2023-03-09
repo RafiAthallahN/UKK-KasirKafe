@@ -1,12 +1,13 @@
 const express = require("express")
 const meja = require("../models/index").meja
 const sequelize = require("sequelize")
+const {auth, isAdmin, isKasir, isManajer} = require("../auth")
 const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-app.get("/", async (req, res) => {
+app.get("/",auth, isAdmin, async (req, res) => {
     meja.findAll()
         .then(result => {
             res.json({
@@ -20,7 +21,7 @@ app.get("/", async (req, res) => {
         })
 })
 
-app.get("/:id", async (req, res) => {
+app.get("/:id",auth, isAdmin, async (req, res) => {
     let param = {
         id_meja: req.params.id
     }
@@ -37,7 +38,7 @@ app.get("/:id", async (req, res) => {
         })
 })
 
-app.post("/add", async (req, res) => {
+app.post("/add", auth, isAdmin, async (req, res) => {
     let data = {
         nomor_meja: req.body.nomor_meja,
         status: req.body.status
@@ -56,7 +57,7 @@ app.post("/add", async (req, res) => {
         })
 })
 
-app.put("/update", async (req, res) => {
+app.put("/update",auth, isAdmin, async (req, res) => {
     let param = {
         id_meja: req.body.id_meja
     }
@@ -78,7 +79,7 @@ app.put("/update", async (req, res) => {
         })
 })
 
-app.delete("/delete/:id", async (req, res) => {
+app.delete("/delete/:id",auth, isAdmin, async (req, res) => {
     let param = {
         id_meja: req.params.id
     }
@@ -95,7 +96,7 @@ app.delete("/delete/:id", async (req, res) => {
         })
 })
 
-app.get("/search/:keyword", async (req,res)=>{
+app.get("/search/:keyword",auth, isAdmin, async (req,res)=>{
     let keyword = req.params.keyword
     let result = await meja.findAll({
         where: {

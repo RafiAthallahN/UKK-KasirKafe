@@ -214,6 +214,7 @@ const express = require("express");
 const app = express()
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op
+const {auth, isAdmin, isKasir, isManajer} = require("../auth")
 
 const models = require("../models");
 const transaksi = models.transaksi;
@@ -221,7 +222,7 @@ const detail_transaksi = models.detail_transaksi;
 
 app.use(express.json());
 
-app.get("/", async (req, res) => {
+app.get("/", auth, isAdmin, async (req, res) => {
     const result = await transaksi.findAll({
         include: ["user", "meja", { model: detail_transaksi, as: "detail_transaksi", include: ["menu"] }],
         order: [["createdAt", "DESC"]],
@@ -251,7 +252,7 @@ app.get("/id/:id_transaksi", async (req, res) => {
     } catch (err) {
         res.json({ msg: err.message });
     }
-});
+}); 
 
 app.get("/byUser/:id_user", async (req, res) => {
     const param = { id_user: req.params.id_user };

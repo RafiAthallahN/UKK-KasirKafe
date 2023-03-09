@@ -1,147 +1,164 @@
-const express = require("express")
-const menu = require("../models/index").menu
-const multer = require("multer")
-const path = require("path")
-const fs = require("fs")
-const app = express()
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
+const { Op } = require('sequelize');
+const { menu, detail_transaksi } = require('../models');
+const { auth, isAdmin, isKasir, isManajer } = require("../auth");
+const { isDataView } = require('util/types');
+
+const app = express();
+app.use(express.json());
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "./image/menu")
+        cb(null, './image/menu');
     },
     filename: (req, file, cb) => {
-        cb(null, "menu-" + Date.now() + path.extname(file.originalname))
-    }
-})
-let upload = multer({ storage: storage })
+        cb(null, `menu-${Date.now()}${path.extname(file.originalname)}`);
+    },
+});
+const upload = multer({ storage });
 
-app.get("/", async (req, res) => {
-    menu.findAll()
-        .then(result => {
-            res.json({
-                data: result
-            })
-        })
-        .catch(error => {
-            res.json({
-                message: error.message
-            })
-        })
-})
-
-app.get("/:id", async (req, res) => {
-    let param = {
-        id_menu: req.params.id
-    }
-    menu.findOne({ where: param })
-        .then(result => {
-            res.json({
-                data: result
-            })
-        })
-        .catch(error => {
-            res.json({
-                message: error.message
-            })
-        })
-})
-
-app.post("/", upload.single("image"), async (req, res) => {
-    if (!req.file) {
+app.get('/', auth, isAdmin, async (req, res) => {
+    try {
+        const data = await menu.findAll({
+            attributes: ['id_menu', 'nama_menu', 'jenis', 'deskripsi', 'gambar', 'harga'],
+        });
         res.json({
-            message: "No Uploaded File"
-        })
-    } else {
-        let data = {
+            count: data.length,
+            menu: data,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});
+
+app.get('/:id_menu', auth, isAdmin, async (req, res) => {
+    try {
+        const data = await menu.findOne({
+            where: { id_menu: req.params.id_menu },
+            attributes: ['id_menu', 'nama_menu', 'jenis', 'deskripsi', 'gambar', 'harga'],
+        });
+        if (data === null) {
+            res.status(404).json({
+                message: 'Data not found',
+            });
+        } else {
+            res.json({
+                menu: data,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});
+
+app.post('/add',auth, isAdmin, upload.single('gambar'), async (req, res) => {
+    try {
+        if (!req.file) {
+            res.status(400).json({
+                message: 'No uploaded file',
+            });
+        } else {
+            const data = {
+                nama_menu: req.body.nama_menu,
+                jenis: req.body.jenis,
+                deskripsi: req.body.deskripsi,
+                gambar: req.file.filename,
+                harga: req.body.harga
+            };
+            await menu.create(data);
+            res.json({
+                message: 'Data has been inserted',
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});
+
+app.put('/update/:id',auth, isAdmin, upload.single('gambar'), async (req, res) => {
+    try {
+        const param = { id_menu: req.params.id };
+        const data = {
             nama_menu: req.body.nama_menu,
             jenis: req.body.jenis,
             deskripsi: req.body.deskripsi,
-            gambar: req.file.filename,
             harga: req.body.harga
+        };
+        if (req.file) {
+            data.gambar = req.file.filename;
+            const oldData = await menu.findOne({
+                where: { id_menu: req.params.id },
+                attributes: ['gambar'],
+            });
+            await fs.unlink(`./image/menu/${oldData.gambar}`);
         }
-        menu.create(data)
-            .then(result => {
-                res.json({
-                    message: "Data has been inserted"
-                })
-            })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
-            })
-    }
-})
-
-app.put("/:id", upload.single("image"), (req, res) => {
-    let param = { id_menu: req.params.id }
-    let data = {
-        nama_menu: req.body.nama_menu,
-        jenis: req.body.jenis,
-        deskripsi: req.body.deskripsi,
-        gambar: req.file.filename,
-        harga: req.body.harga
-    }
-    if (req.file) {
-        const row = menu.findOne({ where: param })
-            .then(result => {
-                let oldFileName = result.image
-
-                //delete old file
-                let dir = path.join(__dirname, "../image/menu", oldFileName)
-                fs.unlink(dir, err => console.log(err))
-            })
-            .catch(error => {
-                console.log(error.message);
-
-            })
-        data.image = req.file.filename
-    }
-
-    menu.update(data, { where: param })
-        .then(result => {
-            res.json({
-                message: "Data has been Updated"
-            })
-        })
-        .catch(error => {
-            res.json({
-                message: error.message
-            })
-        })
-})
-
-
-app.delete("/:id", async (req, res) => {
-    try {
-        let param = { id_menu: req.params.id }
-        let result = await menu.findOne({ where: param })
-        let oldFileName = result.image
-
-        //delete oldfile
-        let dir = path.join(__dirname, "../image/menu", oldFileName)
-        fs.unlink(dir, err => console.log(err))
-
-        //delete data
-        menu.destroy({ where: param })
-            .then(result => {
-                res.json({
-                    message: "Data has been deleted",
-                })
-            })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
-            })
-    }
-    catch (error) {
+        await menu.update(data, { where: param });
         res.json({
-            message: error.message
-        })
+            message: 'Data has been updated',
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
     }
+});
+
+app.delete('/delete/:id_menu', auth, isAdmin, async (req, res) => {
+    try {
+        const param = { id_menu: req.params.id_menu };
+        const oldData = await menu.findOne({
+            where: param,
+            attributes: ['gambar'],
+        });
+        await fs.unlink(`./image/menu/${oldData.gambar}`);
+        await menu.destroy({ where: param });
+        await detail_transaksi.destroy({ where: { id_menu: req.params.id_menu } });
+        res.json({
+            message: 'Data has been deleted',
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});
+
+app.get("/search/:keyword",auth, isAdmin, async (req, res) => {
+    let keyword = req.params.keyword
+    let result = await menu.findAll({
+        where: {
+            [Op.or]: [
+                {
+                    id_menu: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                },
+                {
+                    nama_menu: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                },
+                {
+                    jenis: {
+                        [Op.like]: `${keyword}`
+                    }
+                },
+            ]
+        }
+    })
+    res.json({
+        menu: result
+    })
 })
 
-module.exports = app
+
+module.exports = app;

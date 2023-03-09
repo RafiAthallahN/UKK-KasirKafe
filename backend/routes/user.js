@@ -4,13 +4,13 @@ const md5 = require("md5")
 const jwt = require("jsonwebtoken")
 const sequelize = require("sequelize")
 const SECRET_KEY = "INIKASIR"
-const auth = require("../auth")
+const { auth, isAdmin, isKasir, isManajer } = require("../auth")
 const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-app.get("/", auth, async (req, res) => {
+app.get("/", auth, isAdmin, async (req, res) => {
     user.findAll()
         .then(result => {
             res.json({
@@ -24,7 +24,7 @@ app.get("/", auth, async (req, res) => {
         })
 })
 
-app.get("/:id", auth, async (req, res) => {
+app.get("/:id", auth, isAdmin, async (req, res) => {
     let param = {
         id_user: req.params.id
     }
@@ -41,7 +41,7 @@ app.get("/:id", auth, async (req, res) => {
         })
 })
 
-app.post("/add", auth, async (req, res) => {
+app.post("/add", auth, isAdmin, async (req, res) => {
     let data = {
         nama_user: req.body.nama_user,
         role: req.body.role,
@@ -69,7 +69,7 @@ app.post("/add", auth, async (req, res) => {
     }
 })
 
-app.put("/update", auth, async (req, res) => {
+app.put("/update", auth, isAdmin, async (req, res) => {
     let param = {
         id_user: req.body.id_user
     }
@@ -100,7 +100,7 @@ app.put("/update", auth, async (req, res) => {
     }
 })
 
-app.delete("/delete/:id", auth, async (req, res) => {
+app.delete("/delete/:id", auth, isAdmin, async (req, res) => {
     let param = {
         id_user: req.params.id
     }
@@ -117,7 +117,7 @@ app.delete("/delete/:id", auth, async (req, res) => {
         })
 })
 
-app.get("/search/:keyword", auth, async (req, res) => {
+app.get("/search/:keyword", auth, isAdmin, async (req, res) => {
     let keyword = req.params.keyword
     let result = await user.findAll({
 
