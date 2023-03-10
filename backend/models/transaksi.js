@@ -33,11 +33,19 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
+  
     tgl_transaksi: DataTypes.DATE,
-    id_user: DataTypes.INTEGER,
-    id_meja: DataTypes.INTEGER,
+    id_user:{
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    id_meja:{
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     nama_pelanggan: DataTypes.STRING,
-    status: DataTypes.ENUM('belum_bayar', 'lunas')
+    status: DataTypes.ENUM('belum_bayar', 'lunas'),
+    total: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'transaksi',
