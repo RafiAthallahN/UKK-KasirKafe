@@ -4,7 +4,7 @@ const md5 = require("md5")
 const jwt = require("jsonwebtoken")
 const sequelize = require("sequelize")
 const SECRET_KEY = "INIKASIR"
-const { auth, isAdmin, isKasir, isManajer } = require("../auth")
+const { auth, isAdmin } = require("../auth")
 const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))

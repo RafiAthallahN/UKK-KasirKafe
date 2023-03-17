@@ -1,7 +1,7 @@
 const express = require("express")
 const meja = require("../models/index").meja
 const sequelize = require("sequelize")
-const {auth, isAdmin, isKasir, isManajer} = require("../auth")
+const {auth, isAdmin, isKasir } = require("../auth")
 const Op = sequelize.Op
 const app = express()
 app.use(express.urlencoded({ extended: true }))

@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { Op } = require('sequelize');
 const { menu, detail_transaksi } = require('../models');
-const { auth, isAdmin, isKasir, isManajer } = require("../auth");
+const { auth, isAdmin } = require("../auth");
 const { isDataView } = require('util/types');
 
 const app = express();
