@@ -96,7 +96,7 @@ app.delete("/delete/:id",auth, isAdmin, async (req, res) => {
         })
 })
 
-app.get("/search/:keyword",auth, isAdmin, isKasir, async (req,res)=>{
+app.get("/search/:keyword",auth, isAdmin, async (req,res)=>{
     let keyword = req.params.keyword
     let result = await meja.findAll({
         where: {
